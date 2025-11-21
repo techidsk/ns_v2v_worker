@@ -1,6 +1,16 @@
 FROM runpod/worker-comfyui:5.5.1-base
 
+# 调整 handler 配置
+RUN sed -i \
+    -e 's/^COMFY_API_AVAILABLE_INTERVAL_MS = [0-9]\+/COMFY_API_AVAILABLE_INTERVAL_MS = 500/' \
+    -e 's/^COMFY_API_AVAILABLE_MAX_RETRIES = [0-9]\+/COMFY_API_AVAILABLE_MAX_RETRIES = 2000/' \
+    /handler.py
 
+# 固定时区，避免 tzdata 交互
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Etc/UTC \
+    TRITON_CACHE_DIR=/opt/triton-cache \
+    TORCHINDUCTOR_CACHE_DIR=/opt/inductor-cache
 
 # install custom nodes into comfyui
 RUN comfy-node-install comfyui_essentials
